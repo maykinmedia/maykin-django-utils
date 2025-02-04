@@ -53,6 +53,15 @@ docs = [
 release = [
     "bump-my-version",
 ]
+pdf = [
+    "weasyprint"
+]
+2fa = [
+    "django-admin-index"
+]
+axes = [
+    "django-axes"
+]
 
 [tool.setuptools.packages.find]
 include = ["maykin_django_utils*"]
