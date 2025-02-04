@@ -10,13 +10,10 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import os
 import sys
-from pathlib import Path
 
-current_dir = Path(__file__).parents[1]
-code_directory = current_dir / "maykin_django_utils"
-
-sys.path.insert(0, str(code_directory))
+sys.path.insert(0, os.path.abspath(".."))
 
 
 # -- Project information -----------------------------------------------------
@@ -38,6 +35,8 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.todo",
 ]
+
+autodoc_mock_imports = ["django", "weasyprint", "django_admin_index", "axes"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

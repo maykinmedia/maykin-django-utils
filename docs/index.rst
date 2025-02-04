@@ -25,7 +25,14 @@ Features
    :caption: Contents:
 
    quickstart
-
+   utils/checks
+   utils/context_processors
+   utils/django_two_factor_auth
+   utils/migration_operations
+   utils/mixins
+   utils/pdf
+   utils/validators
+   utils/views
 
 
 Indices and tables
