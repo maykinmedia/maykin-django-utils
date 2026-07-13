@@ -2,6 +2,14 @@
 Changelog
 =========
 
+0.20.1 (2026-07-13)
+===================
+
+**Bugfixes**
+
+* Limited the default health checks for the ``/_healthz/`` endpoint to Cache, Database, and Storage,
+  avoiding false failures in certain deployment environments.
+
 0.20.0 (2026-06-29)
 ===================
 
