@@ -2,6 +2,15 @@
 Changelog
 =========
 
+0.20.1 (2026-07-13)
+===================
+
+**Bugfixes**
+
+* Limited the ``/_healthz/`` endpoint to the Cache, Database, and Storage checks
+  to avoid false failures in certain deployment environments.
+* Fixed an invalid anchor rel attribute value by changing ``nofollower`` to ``nofollow``.
+
 0.20.0 (2026-06-29)
 ===================
 
