@@ -6,7 +6,7 @@ from maykin_common.vcr import SimpleVCRTestCase, VCRTestCase
 def get(url: str) -> Exception | requests.Response:
     try:
         return requests.get(url)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         return e
 
 

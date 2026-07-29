@@ -85,7 +85,7 @@ def test_requires_OTEL_SERVICE_NAME_envvar(monkeypatch: pytest.MonkeyPatch):
 def test_initializer_runs_without_raising():
     try:
         setup_otel()
-    except Exception:
+    except Exception:  # noqa: BLE001
         pytest.fail("Expected 'setup_otel' to complete without crashing")
 
 
@@ -125,7 +125,7 @@ def test_failing_celery_import_does_not_raise(monkeypatch: pytest.MonkeyPatch):
 
     try:
         setup_otel()
-    except Exception:
+    except Exception:  # noqa: BLE001
         pytest.fail("Expected celery import issue not to crash the init code")
 
 

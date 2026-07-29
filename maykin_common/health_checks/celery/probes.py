@@ -1,7 +1,7 @@
 import atexit
 import logging
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 from celery import bootsteps
 from celery.apps.worker import Worker as _Worker
@@ -69,7 +69,7 @@ class EventLoopProbe(bootsteps.StartStopStep):
 
     # we need the Timer component before we can run this bootstep. Celery uses this to
     # figure out the step dependency graph.
-    requires = {"celery.worker.components:Timer"}
+    requires: ClassVar[set[str]] = {"celery.worker.components:Timer"}
     tref: TimerEntry | None = None
     liveness_file: Path
 

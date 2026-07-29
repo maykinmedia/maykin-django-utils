@@ -37,7 +37,7 @@ from maykin_common.settings import get_setting
 
 logger = logging.getLogger(__name__)
 
-__all__ = ["render_to_pdf", "render_template_to_pdf"]
+__all__ = ["render_template_to_pdf", "render_to_pdf"]
 
 
 DEFAULT_ALLOWED_PROTOCOLS: Collection[str] = (
@@ -200,12 +200,11 @@ class UrlFetcher:
                 result["file_obj"] = BytesIO(f.read())
             return result
 
-        else:
-            # all candidates were tried, none were a match -> defer to the weasyprint
-            # default
-            return weasyprint.default_url_fetcher(
-                url, allowed_protocols=self.allowed_protocols
-            )  # pyright:ignore[reportReturnType]
+        # all candidates were tried, none were a match -> defer to the weasyprint
+        # default
+        return weasyprint.default_url_fetcher(
+            url, allowed_protocols=self.allowed_protocols
+        )  # pyright:ignore[reportReturnType]
 
 
 def render_to_pdf(
