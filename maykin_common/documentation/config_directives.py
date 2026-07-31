@@ -1,6 +1,7 @@
 import warnings
 from collections import defaultdict
-from collections.abc import Collection
+from collections.abc import Callable, Collection
+from typing import ClassVar
 
 from decouple import Undefined, undefined
 from docutils import nodes
@@ -14,6 +15,8 @@ from maykin_common.config import (
     ENVVAR_REQUIRED_GROUP,
     EnvironmentVariable,
 )
+
+type OptionSpec = dict[str, Callable[[str], object]] | None
 
 
 def get_envvar(param_name: str) -> EnvironmentVariable:
@@ -133,7 +136,7 @@ class ConfigParamDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = True
 
-    option_spec = {
+    option_spec: ClassVar[OptionSpec] = {
         "default": directives.unchanged,
     }
 
@@ -163,7 +166,7 @@ class ConfigGroupDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = True
 
-    option_spec = {
+    option_spec: ClassVar[OptionSpec] = {
         "members": directives.unchanged,
         "exclude": directives.unchanged,
     }
@@ -205,7 +208,7 @@ class ConfigAllParamsDirective(Directive):
     optional_arguments = 0
     final_argument_whitespace = True
 
-    option_spec = {
+    option_spec: ClassVar[OptionSpec] = {
         "members-groups": directives.unchanged,
         "exclude-groups": directives.unchanged,
         "exclude-params": directives.unchanged,
@@ -224,9 +227,12 @@ class ConfigAllParamsDirective(Directive):
         grouped_vars = defaultdict(list)
         for var in ENVVAR_REGISTRY.values():
             # Check if the group should be included
-            if members_groups and var.group not in members_groups:
-                continue
-            elif exclude_groups and var.group in exclude_groups:
+            if (
+                members_groups
+                and var.group not in members_groups
+                or exclude_groups
+                and var.group in exclude_groups
+            ):
                 continue
 
             # Check if the param should be included

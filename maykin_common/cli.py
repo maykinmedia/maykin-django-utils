@@ -10,6 +10,7 @@ which tend to have timeouts of a couple of seconds.
 
 import importlib.metadata
 import socket
+import sys
 import time
 from pathlib import Path
 from typing import Annotated
@@ -50,7 +51,7 @@ def health_check(
     """
 
     # URLs must start with a scheme, otherwise urlparse chokes :-)
-    if not (endpoint.startswith("http://") or endpoint.startswith("https://")):
+    if not (endpoint.startswith(("http://", "https://"))):
         endpoint = f"http://{endpoint}"
 
     parsed = urlparse(endpoint)
@@ -69,7 +70,7 @@ def health_check(
         response = requests.get(normalized_url, timeout=timeout)
     except requests.RequestException as exc:
         typer.secho(f"DOWN ({exc.__class__.__name__})", fg=typer.colors.RED, err=True)
-        exit(1)
+        sys.exit(1)
 
     if up := response.ok:
         typer.secho(
@@ -84,7 +85,7 @@ def health_check(
         )
 
     exit_code = 0 if up else 1
-    exit(exit_code)
+    sys.exit(exit_code)
 
 
 @app.command(name="worker-health-check")
@@ -172,7 +173,7 @@ def worker_health_check(
             fg=typer.colors.RED,
             err=True,
         )
-        exit(1)
+        sys.exit(1)
 
     celery_app = Celery(broker=broker)
 
@@ -183,7 +184,7 @@ def worker_health_check(
                 fg=typer.colors.RED,
                 err=True,
             )
-            exit(_WORKER_EXIT_CODE_EVENT_LOOP_BROKEN)
+            sys.exit(_WORKER_EXIT_CODE_EVENT_LOOP_BROKEN)
 
         now = time.time()
         last_modified = liveness_file.stat().st_mtime
@@ -194,7 +195,7 @@ def worker_health_check(
                 fg=typer.colors.RED,
                 err=True,
             )
-            exit(_WORKER_EXIT_CODE_EVENT_LOOP_BROKEN)
+            sys.exit(_WORKER_EXIT_CODE_EVENT_LOOP_BROKEN)
         else:
             typer.secho(
                 "The event loop appears to be running.",
@@ -213,7 +214,7 @@ def worker_health_check(
                 fg=typer.colors.RED,
                 err=True,
             )
-            exit(_WORKER_EXIT_CODE_PING_FAILURE)
+            sys.exit(_WORKER_EXIT_CODE_PING_FAILURE)
 
     if not skip_readiness:
         if not readiness_file.exists() or not readiness_file.is_file():
@@ -222,14 +223,14 @@ def worker_health_check(
                 fg=typer.colors.RED,
                 err=True,
             )
-            exit(_WORKER_EXIT_CODE_NOT_READY)
+            sys.exit(_WORKER_EXIT_CODE_NOT_READY)
         else:
             typer.secho(
                 "The worker appears ready to process tasks.",
                 fg=typer.colors.GREEN,
             )
 
-    exit(0)
+    sys.exit(0)
 
 
 @app.command(name="beat-health-check")
@@ -261,7 +262,7 @@ def beat_health_check(
             fg=typer.colors.RED,
             err=True,
         )
-        exit(1)
+        sys.exit(1)
 
     # check the file age
     now = time.time()
@@ -273,7 +274,7 @@ def beat_health_check(
             fg=typer.colors.RED,
             err=True,
         )
-        exit(1)
+        sys.exit(1)
     else:
         human_readable_age: str = f"{age_in_seconds}s"
         if 60 < age_in_seconds < 3600:
@@ -287,7 +288,7 @@ def beat_health_check(
             f"Last scheduled task: {human_readable_age} ago.",
             fg=typer.colors.GREEN,
         )
-        exit(0)
+        sys.exit(0)
 
 
 if __name__ == "__main__":  # pragma: no cover

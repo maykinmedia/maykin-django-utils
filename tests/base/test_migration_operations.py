@@ -9,5 +9,5 @@ def test_reset_sequences_completes_without_crashing(migrator: Migrator):
 
     try:
         migrator.apply_tested_migration(("testapp", "0001_reset_sequences"))
-    except Exception:
+    except Exception:  # noqa: BLE001
         pytest.fail("Expected operation to not crash")

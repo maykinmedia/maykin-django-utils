@@ -12,7 +12,7 @@ from typing import Literal, Never, assert_never, overload
 
 from decouple import Csv, Undefined, config as _config, undefined
 
-__all__ = ["config", "DocumentationParams"]
+__all__ = ["DocumentationParams", "config"]
 
 
 @dataclass(slots=True)
