@@ -71,7 +71,7 @@ cli = [
     "typer",
 ]
 pdf = [
-    "weasyprint"
+    "weasyprint>=70.0"
 ]
 mfa = [
     "django-admin-index",
