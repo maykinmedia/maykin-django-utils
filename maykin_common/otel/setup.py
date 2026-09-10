@@ -115,14 +115,29 @@ def setup_otel() -> None:
     # we look at an explicit environment variable.
     defer_setup: bool = config("_OTEL_DEFER_SETUP", default=False, documentation=no_doc)
 
-    # in a uwsgi worker, defer the otel initialization until after the processes have
-    # forked
     if uwsgi is not None:  # pragma: no cover - can't be tested outside of uwsgi
         from uwsgidecorators import (  # pyright: ignore[reportMissingModuleSource]
             postfork,
         )
 
-        postfork(_setup_otel)
+        # The uwsgi docs state the following concerning ``uwsgi.worker_id()``:
+        #
+        #       returns the current worker id (as integer).
+        #       0 means the calling process is not a worker
+        #
+        # A positive id means we're running inside an already-forked worker, which is
+        # what happens with ``--lazy-apps`` (uwsgi then loads the application in the
+        # workers instead of in the master). Registering a postfork hook there is
+        # pointless: the fork it waits for has already happened, so it never fires and
+        # the setup is silently skipped. Initialize immediately instead.
+        #
+        # An id of 0 means we're not in a worker, so the fork is still ahead of us and
+        # initialization must be deferred until after it - the exporters start
+        # background threads and connections that do not survive being forked.
+        if uwsgi.worker_id() > 0:
+            _setup_otel()
+        else:
+            postfork(_setup_otel)
     elif not defer_setup:
         _setup_otel()
 
