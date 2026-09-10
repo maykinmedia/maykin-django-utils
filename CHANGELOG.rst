@@ -2,6 +2,26 @@
 Changelog
 =========
 
+0.21.0 (2026-09-10)
+===================
+
+**💥 Breaking changes**
+
+* Migrated the PDF URL fetcher to WeasyPrint's class-based ``URLFetcher`` API,
+  since WeasyPrint 70.0 removed the deprecated ``default_url_fetcher``.
+  Custom fetchers should now override ``fetch()`` instead of ``__call__()``, and
+  consumers of the old dict-shaped fetch result should switch to
+  ``URLFetcherResponse``. The ``pdf`` extra now requires ``weasyprint>=68.0``.
+
+**Bugfixes**
+
+* Fixed OpenTelemetry not being initialized when uWSGI runs with ``--lazy-apps``.
+
+**Project maintenance**
+
+* Addressed linter errors after upgrading Ruff.
+* Configured Dependabot to also monitor GitHub Actions.
+
 0.20.1 (2026-07-13)
 ===================
 

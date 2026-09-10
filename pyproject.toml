@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "maykin-common"
-version = "0.20.1"
+version = "0.21.0"
 description = "Re-usable utilities for Maykin Django projects, centrally maintained instead of in default-project."
 authors = [
     {name = "Maykin Media", email = "support@maykinmedia.nl"}
@@ -120,7 +120,7 @@ markers = [
 ]
 
 [tool.bumpversion]
-current_version = "0.20.1"
+current_version = "0.21.0"
 files = [
     {filename = "pyproject.toml"},
     {filename = "README.rst"},
