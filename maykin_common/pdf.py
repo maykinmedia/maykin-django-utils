@@ -17,9 +17,7 @@ import functools
 import logging
 import mimetypes
 from collections.abc import Collection, Mapping
-from io import BytesIO
 from pathlib import PurePosixPath
-from typing import NotRequired, TypedDict
 from urllib.parse import ParseResult, urlparse
 
 from django.conf import settings
@@ -32,6 +30,7 @@ from django.template.loader import render_to_string
 from django.utils.module_loading import import_string
 
 import weasyprint
+from weasyprint.urls import URLFetcherResponse
 
 from maykin_common.settings import get_setting
 
@@ -115,16 +114,7 @@ def _reset_storages(sender, setting: str, **kwargs):
             pass
 
 
-class UrlFetcherResult(TypedDict):
-    mime_type: str | None
-    encoding: str | None
-    redirected_url: str
-    filename: str
-    file_obj: NotRequired[BytesIO]
-    string: NotRequired[bytes]
-
-
-class UrlFetcher:
+class UrlFetcher(weasyprint.URLFetcher):
     """
     URL fetcher that skips the network for /static/* and /media/* files.
     """
@@ -134,10 +124,15 @@ class UrlFetcher:
         allowed_protocols: Collection[str] | None,
         _fail_on_errors: bool = False,
     ):
+        super().__init__(
+            allowed_protocols=allowed_protocols, fail_on_errors=_fail_on_errors
+        )
         self.allowed_protocols = allowed_protocols
         self._fail_on_errors = _fail_on_errors
 
-    def __call__(self, url: str) -> UrlFetcherResult:
+    def fetch(
+        self, url: str, headers: Mapping[str, str] | None = None
+    ) -> URLFetcherResponse:
         """
         Check if the URL matches one of our candidates and use it if there's a match.
 
@@ -148,10 +143,7 @@ class UrlFetcher:
         # We don't need to parse the url if data is included directly,
         # e.g. base64-encoded images.
         if url.startswith("data:"):
-            # TODO: deprecated since weasyprint 68, replace with URLFetcher
-            return weasyprint.default_url_fetcher(
-                url, allowed_protocols=self.allowed_protocols
-            )  # pyright:ignore[reportReturnType]
+            return super().fetch(url, headers=headers)
 
         parsed_url = urlparse(url)
 
@@ -184,27 +176,17 @@ class UrlFetcher:
                         "storage": storage,
                     },
                 )
-                # TODO: deprecated since weasyprint 68, replace with URLFetcher
-                return weasyprint.default_url_fetcher(
-                    url, allowed_protocols=self.allowed_protocols
-                )  # pyright:ignore[reportReturnType]
+                return super().fetch(url, headers=headers)
 
-            content_type, encoding = mimetypes.guess_type(absolute_path)
-            result: UrlFetcherResult = {
-                "mime_type": content_type,
-                "encoding": encoding,
-                "redirected_url": url,
-                "filename": rel_path.parts[-1],
-            }
+            content_type, _encoding = mimetypes.guess_type(absolute_path)
+            response_headers = {"Content-Type": content_type} if content_type else {}
             with open(absolute_path, "rb") as f:
-                result["file_obj"] = BytesIO(f.read())
-            return result
+                body = f.read()
+            return URLFetcherResponse(url, body=body, headers=response_headers)
 
         # all candidates were tried, none were a match -> defer to the weasyprint
         # default
-        return weasyprint.default_url_fetcher(
-            url, allowed_protocols=self.allowed_protocols
-        )  # pyright:ignore[reportReturnType]
+        return super().fetch(url, headers=headers)
 
 
 def render_to_pdf(
