@@ -78,6 +78,10 @@ intersphinx_mapping = {
         "https://opentelemetry-python.readthedocs.io/en/latest/",
         None,
     ),
+    "log_outgoing_requests": (
+        "https://django-log-outgoing-requests.readthedocs.io/en/latest/",
+        None,
+    ),
 }
 
 linkcheck_ignore = [
