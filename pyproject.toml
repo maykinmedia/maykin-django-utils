@@ -99,6 +99,10 @@ otel = [
 health-checks = [
     "django-health-check>=3.24",
 ]
+structlog = [
+    "structlog",
+    "django-structlog",  # use django-structlog[celery] if you also use celery
+]
 yubin = [
     "django-yubin>=2.0.0",
     "filelock",
