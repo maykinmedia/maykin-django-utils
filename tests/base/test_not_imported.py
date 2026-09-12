@@ -1,12 +1,11 @@
+import importlib.util
+
 import pytest
 
 
 def _dependency_installed(dependency: str):
-    try:
-        __import__(dependency)
-        return True
-    except ImportError:
-        return False
+    module = importlib.util.find_spec(dependency)
+    return module is not None
 
 
 @pytest.mark.skipif(
@@ -40,3 +39,33 @@ def test_mixins():
 def test_otel():
     with pytest.raises(ImportError):
         import maykin_common.otel  # noqa: F401
+
+
+def test_wsgi_middleware_always_works():
+    from maykin_common.logging.wsgi import LogVars
+
+    def dummy_app(environ, respond):
+        respond("200 OK", [("Content-Type", "text/plain")])
+        return [b"dummy!"]
+
+    def start_response(status, headers, exc_info=None):
+        pass
+
+    application = LogVars(dummy_app)
+
+    response = application({}, start_response)
+
+    assert b"".join(response) == b"dummy!"
+
+
+@pytest.mark.skipif(
+    _dependency_installed("structlog") or _dependency_installed("celery"),
+    reason="The 'structlog' extra or 'celery' seem to be installed",
+)
+def test_other_logging_modules_raise_importerror():
+    with pytest.raises(ImportError):
+        import maykin_common.logging.celery
+    with pytest.raises(ImportError):
+        import maykin_common.logging.config
+    with pytest.raises(ImportError):
+        import maykin_common.logging.processors  # noqa: F401
