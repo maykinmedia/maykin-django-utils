@@ -47,6 +47,7 @@ Features
    quickstart
    env_docs_helpers
    health_checks
+   logging
    otel
    apis
    settings

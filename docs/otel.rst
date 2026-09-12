@@ -27,8 +27,7 @@ Open Telemetry has *things to say* about all this data.
 
 .. note:: Currently, we don't use Open Telemetry tooling for logs, but projects
    typically set up `structlog <https://www.structlog.org/>`_ which get scraped and
-   persisted in some monitoring backend. In the future, we will include the helpers for
-   this in maykin-common.
+   persisted in some monitoring backend. See :ref:`logging` for the relevant tooling.
 
 
 Quickstart (tl;dr)
